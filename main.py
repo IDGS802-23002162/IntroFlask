@@ -1,6 +1,14 @@
 from flask import Flask, render_template, request
-
+from flask import flash
+from flask_wtf.csrf import CSRFProtect
 app = Flask(__name__)
+
+import math
+import forms
+
+app.secret_key='Clave secreta'
+csrf=CSRFProtect()
+
 
 @app.route('/')
 def index():
@@ -54,27 +62,92 @@ def operas():
     </form>
     '''
 
-@app.route("/operasBas")
+@app.route("/operasBas", methods=["GET","POST"])
 def operas1():
-    return render_template("operasBas.html")
+    n1=0
+    n2=0
+    res=0
+
+    if request.method == "POST":
+        n1=request.form.get("n1")
+        n2=request.form.get("n2")
+        res=float(n1)/float(n2)
+
+    return render_template("operasBas.html", n1=n1,n2=n2,res=res)
 
 @app.route("/resultados", methods=["GET","POST"])
 def resultado():
-    opcion=request.form.get("opcion")
-    n1=request.form.get("n1")
-    n2=request.form.get("n2")
+    opcion=0
+    n1=0
+    n2=0
 
-    if opcion == 1: 
-        return f"La suma es: {float(n1)+float(n2)}"
-    if else opcion == 2:
-        return f"La resta es: {float(n1)-float(n2)}"
-    else if opcion == 3:
-        return f"La multiplicacion es: {float(n1)*float(n2)}"
-    else if opcion == 4:
-        return f"La division es: {float(n1)/float(n2)}"
-    else:
-        return f"Operacion no valida"
+    if request.method == "POST":
+        opcion=request.form.get("opcion")
+        n1=request.form.get("n1")
+        n2=request.form.get("n2")
+        if opcion == 1:
+            resultado=("la suma es:" + n1+n2)
+        elif opcion == 2:
+            resultado=("la resta es:" + n1-n2)
+        elif opcion == 3:
+            resultado=("la multiplicacion es:" + n1*n2)
+        elif opcion == 4:
+            resultado=("la division es:" + n1/n2)
+        else: 
+            resultado=("Operacion no valida")
+    return render_template("operasBas.html")
+    
     
 
+@app.route("/alumnos")
+def alumnos():
+    return render_template("alumnos.html")
+
+@app.route("/distancia", methods=["GET", "POST"])
+def distancia():
+    resultado = None
+
+    if request.method == "POST":
+        X1 = float(request.form["X1"])
+        X2 = float(request.form["X2"])
+        Y1 = float(request.form["Y1"])
+        Y2 = float(request.form["Y2"])
+
+        resultado = math.sqrt((X2 - X1)**2 + (Y2 - Y1)**2)
+
+    return render_template("distancia.html", resultado=resultado)
+
+@app.route("/usuarios", methods=["GET", "POST"])
+def usuarios():
+    mat = 0
+    nom = ''
+    apa = ''
+    ama = ''
+    email = ''
+
+    usuarios_class = forms.UserForm(request.form)
+
+    if request.method == "POST" and usuarios_class.validate():
+        mat = usuarios_class.matricula.data
+        nom = usuarios_class.nombre.data
+        apa = usuarios_class.apaterno.data
+        ama = usuarios_class.amaterno.data
+        email = usuarios_class.correo.data
+
+        mensaje='Bienvenido {}'.format(nom)
+        flash(mensaje)
+
+    return render_template(
+        "usuarios.html",
+        form=usuarios_class,
+        mat=mat,
+        nom=nom,
+        apa=apa,
+        ama=ama,
+        email=email
+    )
+
+
 if __name__ == '__main__':
+    csrf.init_app(app)
     app.run(debug=True)
