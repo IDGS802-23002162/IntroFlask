@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% import "_macros.html" as macros%}
+<div class="cinepolis-container">
+
+<div class="panel entradas">
+<form id="formCompra" action="/compra" method="POST" novalidate>
+
+    {{form.csrf_token}}
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
+
+    <h2>ENTRADAS</h2>
+
+    <div class="mb-3">
+            {{macros.campoCine(form.nombre,class="form-control")}}
+        </div>
+    <div class="mb-3">
+            {{macros.campoCine(form.compradores,class="form-control")}}
+        </div>
+    <div class="mb-3">
+        {{macros.radio('tarjeta', 'Tarjeta Cineco') }}
+    </div>
+    <div class="mb-3">
+            {{macros.campoCine(form.cantidad,class="form-control")}}
+        </div>
+
+</form>
+
+<button type="submit" form="formCompra" class="btn btn-primary">Calcular</button>
+</div>
+
+<div class="panel salidas">
+    <h2>Salidas</h2>
+    {{macros.mostrar('Valor a Pagar', total) }}
+</div>
+
+
+<div class="panel acciones">
+    <h2>Acciones</h2>
+    <button class="btn btn-primary">Procesar</button>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Salir</a>
+</div>
+
+</div>
+
+
+
+
+{% endblock %}

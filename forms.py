@@ -18,3 +18,17 @@ class UserForm(Form):
         validators.DataRequired(message="El campo es requerido")])
     correo=EmailField('Correo', [
         validators.Email(message="Ingrese un correo valido")])
+
+class CineForm(Form):
+   
+    nombre=StringField('Nombre', [
+        validators.DataRequired(message="El campo es requerido"),
+        validators.length(min=3, max=10, message='Ingrese nombre valido')])
+    compradores=IntegerField('Compradores', [
+        validators.DataRequired(message="El campo es requerido"),
+        validators.NumberRange(min=1, max=1000, message='Ingrese un valor valido')])
+    cantidad=IntegerField('Cantidad', [
+        validators.DataRequired(message="El campo es requerido"),
+        validators.NumberRange(min=1, max=1000, message='Ingrese un valor valido')])
+
+

@@ -6,6 +6,7 @@ app = Flask(__name__)
 import math
 import forms
 
+
 app.secret_key='Clave secreta'
 csrf=CSRFProtect()
 
@@ -146,6 +147,48 @@ def usuarios():
         ama=ama,
         email=email
     )
+
+@app.route('/compra', methods=["GET","POST"])
+def compra():
+    boleto=12
+    total=0
+
+    compra_class = forms.CineForm(request.form)
+
+    if request.method == "POST" and compra_class.validate():
+
+        nombre=compra_class.nombre.data
+        compradores=compra_class.compradores.data
+        cantidad=compra_class.cantidad.data
+        cantidadMaxima=compradores*7
+        tarjeta=int(request.form.get("tarjeta"))
+
+       
+
+        if cantidad > cantidadMaxima:
+            mensaje = 'Solo se permiten 7 boletos por coprador ({} en total)'.format(cantidadMaxima)
+            flash(mensaje)
+        else:
+            temporal=boleto*cantidad
+            mensaje='Bienvenido {}'.format(nombre)
+            flash(mensaje)
+
+            if cantidad > 5: 
+                total=(temporal)-(temporal*0.15)
+                if tarjeta == 1:
+                    total=total-(total*0.1)
+            elif cantidad in(3,4,5):
+                total=(temporal)-(temporal*0.10)
+                if tarjeta == 1:
+                    total=total-(total*0.1)
+            else:
+                total=(boleto*cantidad)
+                if tarjeta == 1:
+                    total=total-(total*0.1)
+
+    return render_template("compra.html", form=compra_class,
+    total=total)
+
 
 
 if __name__ == '__main__':
